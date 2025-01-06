@@ -1245,7 +1245,7 @@ static widget_t* widget_lookup_by_type_all(widget_t* widget, const char* type) {
   WIDGET_FOR_EACH_CHILD_BEGIN(widget, iter, i)
   if (iter == NULL) {
     continue;
-  } else if(tk_str_eq(iter->vt->type, type)) {
+  } else if (tk_str_eq(iter->vt->type, type)) {
     return iter;
   } else {
     widget_t* ret = widget_lookup_by_type_all(iter, type);
@@ -1499,7 +1499,7 @@ ret_t widget_calc_icon_text_rect(const rect_t* ir, int32_t font_size, float_t te
       *r_icon = rect_init(ir->x + w / 2, ir->y + icon_h / 2, img_w, img_h);
       break;
     }
-    case ICON_AT_RIGHT: 
+    case ICON_AT_RIGHT:
     case ICON_AT_RIGHT_TOP:
     case ICON_AT_RIGHT_BOTTOM: {
       uint32_t w = img_w_r;
@@ -1510,7 +1510,7 @@ ret_t widget_calc_icon_text_rect(const rect_t* ir, int32_t font_size, float_t te
       if (icon_at == ICON_AT_RIGHT_TOP || icon_at == ICON_AT_RIGHT_BOTTOM) {
         r_icon->w = img_w_r;
         r_icon->h = img_h_r;
-        r_icon->x = ir->x + ir->w - img_w_r;        
+        r_icon->x = ir->x + ir->w - img_w_r;
         r_icon->y = icon_at == ICON_AT_RIGHT_TOP ? 0 : (ir->h - img_h_r);
         r_text->w = ir->w - img_w_r - spacer;
       }
@@ -4183,10 +4183,10 @@ static ret_t widget_ensure_visible_in_scroll_view(widget_t* scroll_view, widget_
   if (widget_get_prop(scroll_view, WIDGET_PROP_VIRTUAL_W, &v) == RET_OK) {
     ox = tk_min(ox, value_uint32(&v) - scroll_view->w);
   }
-  if ( widget_get_prop(scroll_view, WIDGET_PROP_VIRTUAL_H, &v) == RET_OK) {
+  if (widget_get_prop(scroll_view, WIDGET_PROP_VIRTUAL_H, &v) == RET_OK) {
     oy = tk_min(oy, value_uint32(&v) - scroll_view->h);
   }
-  
+
   if (ox != old_ox) {
     widget_set_prop_int(scroll_view, WIDGET_PROP_XOFFSET, ox);
   }
@@ -4502,6 +4502,20 @@ static widget_t* widget_find_matched_focus_widget(widget_t* widget, darray_t* al
   for (i = 0; i < all_focusable->size; i++) {
     widget_t* iter = WIDGET(all_focusable->elms[i]);
     if (iter == widget) {
+      if (i == 0 && match == match_up) {
+        matched = WIDGET(all_focusable->elms[all_focusable->size - 1]);
+        while (1) {
+          if (matched->parent == NULL) {
+            matched = NULL;
+            break;
+          } else if (matched->parent == iter->parent) {
+            break;
+          } else {
+            matched = matched->parent;
+          }
+        }
+        break;
+      }
       continue;
     }
 
@@ -4514,6 +4528,9 @@ static widget_t* widget_find_matched_focus_widget(widget_t* widget, darray_t* al
       matched = iter;
       rmatched = riter;
     }
+  }
+  if (matched == NULL && all_focusable->size > 0 && match == match_down) {
+    matched = WIDGET(all_focusable->elms[0]);
   }
 
   return matched;

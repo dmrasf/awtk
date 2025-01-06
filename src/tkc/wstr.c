@@ -30,7 +30,7 @@ const wchar_t* wcs_chr(const wchar_t* s, wchar_t c) {
 
   while (*p && *p != c) p++;
 
-  return *p ? p : NULL;
+  return (*p == c) ? p : NULL;
 }
 
 wchar_t* wcs_ncpy(wchar_t* s1, const wchar_t* s2, uint32_t n) {
