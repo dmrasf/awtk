@@ -274,7 +274,8 @@ typedef struct _window_base_t {
   widget_t* save_focus_widget;
   uint32_t grab_count_when_to_foreground;
   bool_t need_relayout;
-  bool_t moving_focus_mode;
+  uint8_t moving_focus_mode;
+  bool_t first_enter_moving_focus_mode;
   bool_t pressed;
   font_manager_t* font_manager;
   assets_manager_t* assets_manager;

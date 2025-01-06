@@ -647,43 +647,66 @@ static ret_t window_on_keydown_before_children(void* ctx, event_t* e) {
   return_value_if_fail(win != NULL && evt != NULL && base != NULL, RET_BAD_PARAMS);
 
   if (focus != NULL) {
-    if (focus->vt->return_key_to_activate) {
-      /*对于按钮等通过回车键激活控件，方向键始终用于切换焦点*/
-      base->moving_focus_mode = TRUE;
-    } else {
-      /*其它控件，回车键用于切换模式*/
-      if (evt->key == TK_KEY_RETURN) {
-        ret_t ret = RET_OK;
-        base->moving_focus_mode = !base->moving_focus_mode;
-        log_debug("change moving_focus_mode:%d\n", base->moving_focus_mode);
+    if (keyboard_type != KEYBOARD_3KEYS && keyboard_type != KEYBOARD_5KEYS) {
+      if (focus->vt->return_key_to_activate) {
+        /*对于按钮等通过回车键激活控件，方向键始终用于切换焦点*/
+        base->moving_focus_mode = TRUE;
+      } else {
+        /*其它控件，回车键用于切换模式*/
+        if (evt->key == TK_KEY_RETURN) {
+          ret_t ret = RET_OK;
+          base->moving_focus_mode = !base->moving_focus_mode;
+          log_debug("change moving_focus_mode:%d\n", base->moving_focus_mode);
 
 #ifdef WITH_STATE_ACTIVATED
-        if (!base->moving_focus_mode) {
+          if (!base->moving_focus_mode) {
+            event_t e = event_init(EVT_ACTIVATED, focus);
+            widget_set_state(focus, WIDGET_STATE_ACTIVATED);
+            ret = widget_dispatch(focus, &e);
+          } else {
+            event_t e = event_init(EVT_UNACTIVATED, focus);
+            widget_set_state(focus, WIDGET_STATE_FOCUSED);
+            ret = widget_dispatch(focus, &e);
+          }
+#endif /*WITH_STATE_ACTIVATED*/
+
+          return ret;
+        }
+      }
+    } else {
+      if (base->moving_focus_mode == TRUE) {
+        if (evt->key == TK_KEY_ESCAPE) {
+          ret_t ret = RET_OK;
+          base->moving_focus_mode = FALSE;
           event_t e = event_init(EVT_ACTIVATED, focus);
           widget_set_state(focus, WIDGET_STATE_ACTIVATED);
           ret = widget_dispatch(focus, &e);
-        } else {
+          return ret;
+        } else if (evt->key == TK_KEY_RETURN) {
+          base->first_enter_moving_focus_mode = FALSE;
+        }
+      } else if (base->moving_focus_mode == FALSE) {
+        if (evt->key == TK_KEY_RETURN) {
+          ret_t ret = RET_OK;
+          base->first_enter_moving_focus_mode = TRUE;
+          base->moving_focus_mode = TRUE;
           event_t e = event_init(EVT_UNACTIVATED, focus);
           widget_set_state(focus, WIDGET_STATE_FOCUSED);
           ret = widget_dispatch(focus, &e);
+          return ret;
         }
-#endif /*WITH_STATE_ACTIVATED*/
-
-        return ret;
       }
     }
 
-    if (base->moving_focus_mode) {
+    if (base->moving_focus_mode == TRUE) {
       if (keyboard_type == KEYBOARD_3KEYS) {
         switch (evt->key) {
-          case TK_KEY_LEFT:
           case TK_KEY_UP: {
-            widget_focus_prev(focus);
+            widget_focus_up(focus);
             return RET_STOP;
           }
-          case TK_KEY_RIGHT:
           case TK_KEY_DOWN: {
-            widget_focus_next(focus);
+            widget_focus_down(focus);
             return RET_STOP;
           }
           default:
