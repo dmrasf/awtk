@@ -6,19 +6,19 @@
 #define EDIT_IPV4_MAX_PART_SIZE 3
 #define EDIT_IPV4_DEFVAL "0.0.0.0"
 
-static uint32_t edit_ipv4_part_get_max_len(uint32_t index) {
+static uint32_t edit_ipv4_part_get_max_len(uint32_t index, widget_t* widget) {
   return EDIT_IPV4_MAX_PART_SIZE;
 }
 
-static bool_t edit_ipv4_part_value_is_valid(uint32_t index, int32_t v) {
+static bool_t edit_ipv4_part_value_is_valid(uint32_t index, int32_t v, widget_t* widget) {
   return ((v) >= 0 && (v) <= 255);
 }
 
-static bool_t edit_ipv4_part_len_is_valid(uint32_t index, uint32_t len) {
+static bool_t edit_ipv4_part_len_is_valid(uint32_t index, uint32_t len, widget_t* widget) {
   return ((len) >= EDIT_IPV4_MIN_PART_SIZE && (len) <= EDIT_IPV4_MAX_PART_SIZE);
 }
 
-static wchar_t* edit_ipv4_fix_part(uint32_t index, int32_t v, wchar_t* start, wchar_t* end) {
+static wchar_t* edit_ipv4_fix_part(uint32_t index, int32_t v, wchar_t* start, wchar_t* end, widget_t* widget) {
   if ((v) > 255) {
     return end - 1;
   }

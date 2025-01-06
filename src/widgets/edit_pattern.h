@@ -3,10 +3,11 @@
 #ifndef EDIT_PATTERN_H
 #define EDIT_PATTERN_H
 
-typedef uint32_t (*pattern_part_get_max_len_t)(uint32_t index);
-typedef bool_t (*pattern_part_len_is_valid_t)(uint32_t index, uint32_t len);
-typedef bool_t (*pattern_part_value_is_valid_t)(uint32_t index, int32_t value);
-typedef wchar_t* (*pattern_part_fix_t)(uint32_t index, int32_t value, wchar_t* start, wchar_t* end);
+typedef uint32_t (*pattern_part_get_max_len_t)(uint32_t index, widget_t* widget);
+typedef bool_t (*pattern_part_len_is_valid_t)(uint32_t index, uint32_t len, widget_t* widget);
+typedef bool_t (*pattern_part_value_is_valid_t)(uint32_t index, int32_t value, widget_t* widget);
+typedef wchar_t* (*pattern_part_fix_t)(uint32_t index, int32_t value, wchar_t* start, wchar_t* end,
+                                       widget_t* widget);
 
 static bool_t edit_pattern_is_valid(widget_t* widget, wchar_t sep, uint32_t sep_nr,
                                     pattern_part_len_is_valid_t is_valid_len,
@@ -20,18 +21,23 @@ static bool_t edit_pattern_is_valid(widget_t* widget, wchar_t sep, uint32_t sep_
     return FALSE;
   }
 
-  ps = text->str;
-  pe = wcs_chr(ps, sep);
+  if (sep == 0) {
+    ps = text->str;
+    pe = ps + text->size;
+  } else {
+    ps = text->str;
+    pe = wcs_chr(ps, sep);
+  }
 
   do {
     int v = 0;
     int len = pe - ps;
-    if (!is_valid_len(i, len)) {
+    if (!is_valid_len(i, len, widget)) {
       return FALSE;
     }
 
     v = tk_watoi_n(ps, pe - ps);
-    if (!(is_valid_value(i, v))) {
+    if (!(is_valid_value(i, v, widget))) {
       return FALSE;
     }
 
@@ -74,13 +80,13 @@ static ret_t edit_pattern_fix_ex(widget_t* widget, bool_t strict, const char* de
 
   do {
     int v = 0;
-    while (ps != pe && (p - pd) < get_part_max_len(i)) {
+    while (ps != pe && (p - pd) < get_part_max_len(i, widget)) {
       *p++ = *ps++;
     }
 
     if (strict) {
       v = tk_watoi_n(pd, p - pd);
-      p = fix(i, v, pd, p);
+      p = fix(i, v, pd, p, widget);
     }
 
     if (i == sep_nr) {
@@ -152,7 +158,7 @@ static bool_t edit_pattern_is_valid_char(widget_t* widget, wchar_t c, wchar_t se
 
       len = pe - ps;
       /*part 字符超长*/
-      if (len >= (int)get_part_max_len(index)) {
+      if (len >= (int)get_part_max_len(index, widget)) {
         if (text->str[cursor] == 0) {
           return FALSE;
         } else if (text->str[cursor] == sep) {

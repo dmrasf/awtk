@@ -4,11 +4,11 @@
 #define EDIT_TIME_SEP_NR 1
 #define EDIT_TIME_DEFVAL "00:00"
 
-static uint32_t edit_time_part_get_max_len(uint32_t index) {
+static uint32_t edit_time_part_get_max_len(uint32_t index, widget_t* widget) {
   return 2;
 }
 
-static bool_t edit_time_part_value_is_valid(uint32_t index, int32_t v) {
+static bool_t edit_time_part_value_is_valid(uint32_t index, int32_t v, widget_t* widget) {
   if (index == 0) {
     /*hour*/
     return v < 24;
@@ -20,11 +20,12 @@ static bool_t edit_time_part_value_is_valid(uint32_t index, int32_t v) {
   return FALSE;
 }
 
-static bool_t edit_time_part_len_is_valid(uint32_t index, uint32_t len) {
+static bool_t edit_time_part_len_is_valid(uint32_t index, uint32_t len, widget_t* widget) {
   return len == 2;
 }
 
-static wchar_t* edit_time_fix_part(uint32_t index, int32_t v, wchar_t* start, wchar_t* end) {
+static wchar_t* edit_time_fix_part(uint32_t index, int32_t v, wchar_t* start, wchar_t* end,
+                                   widget_t* widget) {
   uint32_t len = end - start;
   const wchar_t* fix_value = NULL;
   if (index == 0) {

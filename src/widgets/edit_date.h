@@ -4,7 +4,7 @@
 #define EDIT_DATE_SEP_NR 2
 #define EDIT_DATE_DEFVAL "2020/01/01"
 
-static uint32_t edit_date_part_get_max_len(uint32_t index) {
+static uint32_t edit_date_part_get_max_len(uint32_t index, widget_t* widget) {
   if (index == 0) {
     /*year*/
     return 4;
@@ -14,7 +14,7 @@ static uint32_t edit_date_part_get_max_len(uint32_t index) {
   }
 }
 
-static bool_t edit_date_part_value_is_valid(uint32_t index, int32_t v) {
+static bool_t edit_date_part_value_is_valid(uint32_t index, int32_t v, widget_t* widget) {
   if (index == 0) {
     /*year*/
     return v < 9000;
@@ -27,7 +27,7 @@ static bool_t edit_date_part_value_is_valid(uint32_t index, int32_t v) {
   }
 }
 
-static bool_t edit_date_part_len_is_valid(uint32_t index, uint32_t len) {
+static bool_t edit_date_part_len_is_valid(uint32_t index, uint32_t len, widget_t* widget) {
   if (index == 0) {
     /*year*/
     return len == 4;
@@ -37,7 +37,7 @@ static bool_t edit_date_part_len_is_valid(uint32_t index, uint32_t len) {
   }
 }
 
-static wchar_t* edit_date_fix_part(uint32_t index, int32_t v, wchar_t* start, wchar_t* end) {
+static wchar_t* edit_date_fix_part(uint32_t index, int32_t v, wchar_t* start, wchar_t* end, widget_t* widget) {
   uint32_t len = end - start;
   const wchar_t* fix_value = NULL;
   if (index == 0) {
