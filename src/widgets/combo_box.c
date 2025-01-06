@@ -626,6 +626,23 @@ ret_t combo_box_set_on_item_click(widget_t* widget, event_func_t on_item_click, 
   return RET_OK;
 }
 
+static ret_t combo_box_on_item_key_up(void* ctx, event_t* e) {
+  widget_t* widget = WIDGET(ctx);
+  widget_t* item = WIDGET(e->target);
+  return_value_if_fail(widget != NULL && item != NULL, RET_BAD_PARAMS);
+
+  key_event_t* ke = key_event_cast(e);
+  if (ke->key == TK_KEY_ESCAPE) {
+    widget->target = NULL;
+    widget->key_target = NULL;
+    window_close(widget_get_window(item));
+    widget_set_focused_internal(widget, FALSE);
+    WINDOW_BASE(widget_get_window(widget))->moving_focus_mode = TRUE;
+  }
+
+  return RET_OK;
+}
+
 static ret_t combo_box_on_item_click(void* ctx, event_t* e) {
   widget_t* widget = WIDGET(ctx);
   widget_t* item = WIDGET(e->target);
@@ -644,7 +661,8 @@ static ret_t combo_box_on_item_click(void* ctx, event_t* e) {
   widget->target = NULL;
   widget->key_target = NULL;
   window_close(widget_get_window(item));
-  widget_set_focused_internal(widget, TRUE);
+  widget_set_focused_internal(widget, FALSE);
+  WINDOW_BASE(widget_get_window(widget))->moving_focus_mode = TRUE;
 
   return RET_OK;
 }
@@ -658,6 +676,7 @@ static ret_t combo_box_visit_item(void* ctx, const void* data) {
     int32_t index = widget_index_of(iter);
 
     widget_on(iter, EVT_CLICK, combo_box_on_item_click, combo_box);
+    widget_on(iter, EVT_KEY_UP, combo_box_on_item_key_up, combo_box);
 
     if (index == combo_box->selected_index) {
       COMBO_BOX_ITEM(iter)->checked = TRUE;
