@@ -2253,11 +2253,14 @@ ret_t edit_pre_input_with_sep(widget_t* widget, uint32_t key, char sep) {
           text_edit_set_cursor(edit->model, 0);
           text_edit_set_select(edit->model, 0, 1);
           widget_set_focused(widget, FALSE);
+          WINDOW_BASE(widget_get_window(widget))->moving_focus_mode = TRUE;
+          return RET_STOP;
         }
       } else if (key == TK_KEY_ESCAPE) {
         text_edit_unselect(edit->model);
         edit_rollback_text(widget);
         widget_set_focused(widget, FALSE);
+        WINDOW_BASE(widget_get_window(widget))->moving_focus_mode = TRUE;
       }
     }
   } else if (keyboard_type == KEYBOARD_5KEYS) {
@@ -2267,10 +2270,13 @@ ret_t edit_pre_input_with_sep(widget_t* widget, uint32_t key, char sep) {
       text_edit_set_cursor(edit->model, 0);
       text_edit_set_select(edit->model, 0, 1);
       widget_set_focused(widget, FALSE);
+      WINDOW_BASE(widget_get_window(widget))->moving_focus_mode = TRUE;
+      return RET_STOP;
     } else if (key == TK_KEY_ESCAPE) {
       text_edit_unselect(edit->model);
       edit_rollback_text(widget);
       widget_set_focused(widget, FALSE);
+      WINDOW_BASE(widget_get_window(widget))->moving_focus_mode = TRUE;
     } else if (key == TK_KEY_LEFT) {
       if (state.select_start > 0) {
         text_edit_unselect(edit->model);
