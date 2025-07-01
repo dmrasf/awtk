@@ -29,6 +29,7 @@ static bool_t edit_float_part_value_is_valid(uint32_t index, int32_t v, widget_t
   static int32_t int_value = 0;
   double value = 0;
   uint8_t float_num = edit_float_part_get_max_len(1, widget);
+  int64_t min = 1, max = 1, val = 1;
 
   if (index == 0) {
     int_value = v;
@@ -38,9 +39,17 @@ static bool_t edit_float_part_value_is_valid(uint32_t index, int32_t v, widget_t
 
     while (float_num--) {
       value /= 10.0;
+      min *= 10;
+      max *= 10;
+      val *= 10;
     }
     value += int_value;
-    return value >= edit->min && value <= edit->max;
+
+    min = round(min * edit->min);
+    max = round(max * edit->max);
+    val = val * value;
+
+    return value >= min && value <= max;
   }
   return FALSE;
 }
